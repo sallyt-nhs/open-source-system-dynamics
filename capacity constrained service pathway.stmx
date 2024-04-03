@@ -1,0 +1,507 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xmile version="1.0" xmlns="http://docs.oasis-open.org/xmile/ns/XMILE/v1.0" xmlns:isee="http://iseesystems.com/XMILE">
+	<header>
+		<smile version="1.0" namespace="std, isee"/>
+		<name>capacity constrained service pathway</name>
+		<uuid>4384525c-d9f2-4f19-b95b-2693191bf486</uuid>
+		<vendor>isee systems, inc.</vendor>
+		<product version="3.6" isee:build_number="3246" isee:saved_by_v1="true" lang="en">Stella Architect</product>
+	</header>
+	<sim_specs isee:sim_duration="3" isee:run_prefix="Run" isee:simulation_delay="0.00824176" isee:restore_on_start="false" method="Euler" time_units="days" isee:instantaneous_flows="false" isee:ignore_module_errors="false" isee:strict_units="false" isee:loop_scores="false" isee:loop_exhaustive_allowed="1000">
+		<start>1</start>
+		<stop>365</stop>
+		<dt reciprocal="true">4</dt>
+	</sim_specs>
+	<isee:prefs saved_runs="5" keep="false" show_module_prefix="true" live_update_on_drag="true" show_restore_buttons="false" layer="model" isee:design="Deluxe Prev-Next Blue Green Pastel" isee:design_custom="false" interface_scale_ui="true" interface_max_page_width="10000" interface_max_page_height="10000" interface_min_page_width="0" interface_min_page_height="0" rerun_on_structure_change="false" rifp="true"/>
+	<isee:multiplayer_settings include_chat="true" allow_observers="false" advance_time_increment="1" max_advance_time_in_ms="0" model_stops_when_players_drop="false" observer_start_page="home_page" enabled="false"/>
+	<isee:time_formats default_format="Builtin">
+		<isee:time_format name="Builtin" type="adaptive"/>
+	</isee:time_formats>
+	<isee:number_format_extenders/>
+	<default_format/>
+	<model_units>
+		<unit name="People">
+			<eqn/>
+			<alias>person</alias>
+			<alias>persons</alias>
+		</unit>
+		<unit name="Days">
+			<eqn/>
+			<alias>day</alias>
+		</unit>
+		<unit name="Weeks">
+			<eqn/>
+			<alias>wk</alias>
+			<alias>week</alias>
+		</unit>
+		<unit name="Years">
+			<eqn/>
+			<alias>yr</alias>
+			<alias>year</alias>
+		</unit>
+	</model_units>
+	<model>
+		<isee:extra_collection_variables>
+			<isee:extra_collection_variable name="waiting_time_days"/>
+			<isee:extra_collection_variable name="spare_places"/>
+			<isee:extra_collection_variable name="referrals"/>
+			<isee:extra_collection_variable name="start_service"/>
+			<isee:extra_collection_variable name="finish_service"/>
+			<isee:extra_collection_variable name="waiting_to_start"/>
+			<isee:extra_collection_variable name="total_places"/>
+			<isee:extra_collection_variable name="service_users"/>
+		</isee:extra_collection_variables>
+		<variables>
+			<stock name="service users">
+				<eqn>120</eqn>
+				<format precision="1"/>
+				<scale min="0" max="400"/>
+				<inflow>start_service</inflow>
+				<outflow>finish_service</outflow>
+				<non_negative/>
+				<units>People</units>
+			</stock>
+			<flow name="finish service">
+				<eqn>service_users/(length_of_service_wks *days_per_week)</eqn>
+				<non_negative/>
+				<units>People/day</units>
+			</flow>
+			<aux name="length of service wks">
+				<eqn>7</eqn>
+				<format precision="1"/>
+				<range min="1" max="20"/>
+				<units>weeks</units>
+			</aux>
+			<aux name="referrals per week">
+				<eqn>TIME</eqn>
+				<format precision="1"/>
+				<range min="0" max="40"/>
+				<gf>
+					<xscale min="1" max="274"/>
+					<yscale min="0" max="100"/>
+					<ypts>20,30,40,30</ypts>
+				</gf>
+				<units>People/week</units>
+			</aux>
+			<stock name="waiting to start">
+				<eqn>100</eqn>
+				<inflow>referrals</inflow>
+				<outflow>start_service</outflow>
+				<non_negative/>
+				<units>People</units>
+			</stock>
+			<flow name="referrals">
+				<eqn>referrals_per_week/days_per_week</eqn>
+				<non_negative/>
+				<units>People/day</units>
+			</flow>
+			<aux name="spare places">
+				<eqn>(total_places*people_per_place)-service_users+finish_per_day</eqn>
+				<units>People</units>
+			</aux>
+			<aux name="total places">
+				<eqn>130</eqn>
+				<units>Place</units>
+			</aux>
+			<flow name="start service">
+				<eqn>MIN(spare_places,  waiting_to_start)/day</eqn>
+				<non_negative/>
+				<units>People/day</units>
+			</flow>
+			<aux name="waiting time days">
+				<eqn>SAFEDIV(waiting_to_start, start_service)</eqn>
+				<units>Days</units>
+			</aux>
+			<stock name="cumulative finishers">
+				<eqn>0</eqn>
+				<inflow>finishers</inflow>
+				<non_negative/>
+				<units>People</units>
+			</stock>
+			<flow name="finishers">
+				<eqn>finish_service</eqn>
+				<non_negative/>
+				<units>People/day</units>
+			</flow>
+			<aux name="service users\ncompleted per quarter">
+				<eqn>(cumulative_finishers - DELAY(cumulative_finishers, DT))/DT * days_per_qtr</eqn>
+				<units>People/year</units>
+			</aux>
+			<aux name="days per week">
+				<eqn>7</eqn>
+				<units>days/week</units>
+			</aux>
+			<aux name="days per qtr">
+				<eqn>91</eqn>
+				<units>days/year</units>
+			</aux>
+			<aux name="finish per day">
+				<eqn>finish_service*day</eqn>
+				<units>People</units>
+			</aux>
+			<aux name="day">
+				<eqn>1</eqn>
+				<units>day</units>
+			</aux>
+			<aux name="people per place">
+				<eqn>1</eqn>
+				<units>People/Place</units>
+			</aux>
+			<aux name="unused places">
+				<eqn>total_places-service_users</eqn>
+			</aux>
+			<aux name="waiting">
+				<eqn>waiting_to_start-start_service</eqn>
+			</aux>
+		</variables>
+		<views>
+			<style color="black" background="white" font_style="normal" font_weight="normal" text_decoration="none" text_align="center" vertical_text_align="center" font_color="black" font_family="Arial" font_size="10pt" padding="2" border_color="black" border_width="thin" border_style="none">
+				<text_box color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt"/>
+				<isee:loop_indicator color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt"/>
+				<numeric_display color="blue" background="white" font_size="9pt" border_width="thin" border_style="solid" isee:transparent="false" isee:show_divider="true" isee:show_bounding_box="true" label_side="left"/>
+				<graph color="black" background="white" font_size="12pt" axis_color="#666666" grid_color="#C8C8C8" isee:graph_area_color="white" legend_position="bottom" isee:transparent="false" isee:hide_border="false" axis_title_font_style="normal" axis_title_font_weight="normal" axis_title_text_decoration="none" axis_title_text_align="center" axis_title_vertical_text_align="center" axis_title_font_color="black" axis_title_font_family="Arial" axis_title_font_size="12pt" axis_title_text_padding="2" axis_title_text_border_color="black" axis_title_text_border_width="thin" axis_title_text_border_style="none" axis_label_font_style="normal" axis_label_font_weight="normal" axis_label_text_decoration="none" axis_label_text_align="center" axis_label_vertical_text_align="center" axis_label_font_color="black" axis_label_font_family="Arial" axis_label_font_size="9pt" axis_label_text_padding="2" axis_label_text_border_color="black" axis_label_text_border_width="thin" axis_label_text_border_style="none">
+					<isee:series_styles>
+						<isee:series_style color="blue" thickness="1"/>
+						<isee:series_style color="red" thickness="1"/>
+						<isee:series_style color="fuchsia" thickness="1" pen_style="dotted"/>
+						<isee:series_style color="#008F44" thickness="1"/>
+						<isee:series_style color="#FF7F00" thickness="1"/>
+						<isee:series_style color="#7F00FF" thickness="1" pen_style="dot_dashed"/>
+						<isee:series_style color="#0CA0FF" thickness="1" pen_style="dotted"/>
+						<isee:series_style color="lime" thickness="1" pen_style="dashed"/>
+						<isee:series_style color="#FF007F" thickness="1"/>
+						<isee:series_style color="aqua" thickness="1" pen_style="dot_dashed"/>
+						<isee:series_style color="#F586FF" thickness="1" pen_style="dotted"/>
+						<isee:series_style color="black" thickness="1" pen_style="dashed"/>
+						<isee:series_style color="#C8C8C8" thickness="1"/>
+					</isee:series_styles>
+				</graph>
+				<table color="black" background="#E0E0E0" text_align="right" font_size="12pt" orientation="vertical" wrap_text="false" isee:auto_fit="true" isee:use_alternate_row_colors="false" isee:unlimited_table_length="false" blank_column_width="80" column_width="160" interval="1" report_balances="beginning" report_flows="instantaneous" header_font_style="normal" header_font_weight="normal" header_text_decoration="none" header_text_align="center" header_vertical_text_align="center" header_font_color="black" header_font_family="Arial" header_font_size="12pt" header_text_padding="2" header_text_border_color="black" header_text_border_width="thin" header_text_border_style="none"/>
+				<button color="black" background="#E0E0E0" font_size="12pt" border_width="thin" border_style="solid" transparent="false" corner_radius="0" isee:flat="false" icon_side="top" isee:highlight_on_hover="false" isee:highlight_color="#959595"/>
+				<isee:annotation color="black" background="#E0E0E0" font_size="12pt" border_width="thin" border_style="solid" transparent="false" corner_radius="0" isee:flat="false" icon_side="top" isee:highlight_on_hover="false" isee:highlight_color="#959595" popup_corner_radius="0" popup_background_color="#FFFECF"/>
+				<slider color="black" background="#E0E0E0" font_size="12pt" num_ticks="3" label_side="top" wrap_title="true" vertical="false" isee:fancy_appearance="false" isee:show_hover_tip="when_deciding" input_expands="true" input_width="100"/>
+				<isee:stacked_container color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt" padding="6 8" border_color="#999999" border_width="thin" border_style="solid" item_spacing="0" corner_radius="4" selected_item_color="black" selected_item_background="white" item_background="#DDDDDD" transparent_bg="false"/>
+				<isee:dual_slider color="black" background="white" font_size="12pt" num_ticks="3" label_side="top" wrap_title="true" isee:show_hover_tip="when_deciding" input_expands="true" input_width="100"/>
+				<isee:sim_speed_slider color="black" background="white"/>
+				<isee:time_slider color="#E95F74" background="silver"/>
+				<isee:pie_input color="black" background="white" font_size="12pt" legend_position="bottom" isee:transparent="false"/>
+				<knob color="#66CC66" background="#E0E0E0" font_size="12pt" label_side="bottom" wrap_title="true"/>
+				<numeric_input color="black" background="#E0E0E0" font_size="12pt" label_side="left" wrap_title="true" input_expands="false" input_width="100"/>
+				<isee:dropdown_input color="black" background="white" font_size="12pt" label_side="left" wrap_title="true" input_expands="false" input_width="100"/>
+				<switch color="black" background="#E0E0E0" font_size="12pt" label_side="top" wrap_title="true" isee:appearance="switch" isee:on_color="green"/>
+				<options color="black" background="white" appearance="radio-buttons" arrangement="vertical"/>
+				<graphical_input color="black" background="#E0E0E0" font_size="12pt" isee:show_hover_tip="true"/>
+				<group_input color="black" background="#E0E0E0" font_size="12pt"/>
+				<lamp color="black" background="white" font_size="9pt"/>
+				<gauge color="black" background="white" font_size="9pt" needle_color="#F09F72" bar_color="#EEEEEE" bar_progress_color="black" appearance="radial" num_major_ticks="11" num_minor_ticks="11" show_numeric_value="true"/>
+				<isee:spatial_map color="black" background="white" font_size="12pt"/>
+				<isee:animation_object color="black" background="white" font_size="12pt"/>
+				<isee:navigation_widget color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt" padding="6 8" border_color="#999999" border_width="thin" border_style="solid" item_spacing="6" appearance="tabs" corner_radius="4" selected_item_color="black" selected_item_background="white" item_background="#DDDDDD" transparent_bg="false"/>
+				<isee:shape color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt" border_width="thin" border_style="solid" opacity="1" transparent_background="true" corner_radius="1"/>
+				<isee:selector color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt"/>
+				<isee:iframe color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt" border_width="thin" border_style="solid"/>
+				<isee:financial_table color="black" background="white" text_align="right" font_size="12pt" hide_border="false" auto_fit="true" first_column_width="250" other_column_width="100" header_font_style="normal" header_font_weight="bold" header_text_decoration="none" header_text_align="center" header_vertical_text_align="center" header_font_color="black" header_font_family="Arial" header_font_size="14pt" header_text_padding="2" header_text_border_color="black" header_text_border_width="thin" header_text_border_style="none"/>
+			</style>
+			<view isee:show_pages="true" background="white" page_width="1091" page_height="761" isee:page_cols="2" isee:page_rows="2" zoom="140" isee:popup_graphs_are_comparative="false" isee:enable_non_negative_highlights="false" type="stock_flow">
+				<style color="black" background="white" font_style="normal" font_weight="normal" text_decoration="none" text_align="center" vertical_text_align="center" font_color="black" font_family="Arial" font_size="10pt" padding="2" border_color="black" border_width="thin" border_style="none">
+					<stock color="blue" background="white" font_color="blue" font_size="12pt" label_side="top">
+						<shape type="rectangle" width="45" height="35"/>
+					</stock>
+					<flow color="blue" background="white" font_color="blue" font_size="12pt" label_side="bottom">
+						<shape type="circle" radius="18"/>
+					</flow>
+					<isee:placeholder color="#228B22" background="white" font_color="#228B22" label_side="bottom"/>
+					<module color="blue" background="white" font_color="blue" font_size="12pt" label_side="top">
+						<shape type="rectangle" width="55" height="45"/>
+					</module>
+					<aux color="blue" background="white" font_color="blue" font_size="12pt" label_side="bottom">
+						<shape type="circle" radius="18"/>
+					</aux>
+					<group color="red" background="white" font_color="red" font_size="9pt"/>
+					<connector color="#FF007F" background="white" font_color="#FF007F" font_size="9pt" isee:thickness="1"/>
+					<text_box color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt"/>
+					<isee:loop_indicator color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt"/>
+					<numeric_display color="blue" background="white" font_size="9pt" border_width="thin" border_style="solid" isee:transparent="false" isee:show_divider="true" isee:show_bounding_box="true" label_side="left"/>
+					<graph color="black" background="white" font_size="12pt" axis_color="#666666" grid_color="#C8C8C8" isee:graph_area_color="white" legend_position="bottom" isee:transparent="false" isee:hide_border="false" axis_title_font_style="normal" axis_title_font_weight="normal" axis_title_text_decoration="none" axis_title_text_align="center" axis_title_vertical_text_align="center" axis_title_font_color="black" axis_title_font_family="Arial" axis_title_font_size="12pt" axis_title_text_padding="2" axis_title_text_border_color="black" axis_title_text_border_width="thin" axis_title_text_border_style="none" axis_label_font_style="normal" axis_label_font_weight="normal" axis_label_text_decoration="none" axis_label_text_align="center" axis_label_vertical_text_align="center" axis_label_font_color="black" axis_label_font_family="Arial" axis_label_font_size="9pt" axis_label_text_padding="2" axis_label_text_border_color="black" axis_label_text_border_width="thin" axis_label_text_border_style="none">
+						<isee:series_styles>
+							<isee:series_style color="blue" thickness="1"/>
+							<isee:series_style color="red" thickness="1"/>
+							<isee:series_style color="fuchsia" thickness="1" pen_style="dotted"/>
+							<isee:series_style color="#008F44" thickness="1"/>
+							<isee:series_style color="#FF7F00" thickness="1"/>
+							<isee:series_style color="#7F00FF" thickness="1" pen_style="dot_dashed"/>
+							<isee:series_style color="#0CA0FF" thickness="1" pen_style="dotted"/>
+							<isee:series_style color="lime" thickness="1" pen_style="dashed"/>
+							<isee:series_style color="#FF007F" thickness="1"/>
+							<isee:series_style color="aqua" thickness="1" pen_style="dot_dashed"/>
+							<isee:series_style color="#F586FF" thickness="1" pen_style="dotted"/>
+							<isee:series_style color="black" thickness="1" pen_style="dashed"/>
+							<isee:series_style color="#C8C8C8" thickness="1"/>
+						</isee:series_styles>
+					</graph>
+					<table color="black" background="#E0E0E0" text_align="right" font_size="12pt" orientation="vertical" wrap_text="false" isee:auto_fit="true" isee:use_alternate_row_colors="false" isee:unlimited_table_length="false" blank_column_width="80" column_width="160" interval="1" report_balances="beginning" report_flows="instantaneous" header_font_style="normal" header_font_weight="normal" header_text_decoration="none" header_text_align="center" header_vertical_text_align="center" header_font_color="black" header_font_family="Arial" header_font_size="12pt" header_text_padding="2" header_text_border_color="black" header_text_border_width="thin" header_text_border_style="none"/>
+				</style>
+				<stock color="#000055" font_color="#000055" x="563.5" y="213.5" width="114" height="67" name="service users"/>
+				<flow color="#000055" font_color="#000055" label_angle="330.495" x="764.75" y="251" name="finish service">
+					<pts>
+						<pt x="677.5" y="251"/>
+						<pt x="876" y="251"/>
+					</pts>
+				</flow>
+				<aux color="#000055" background="#8CBD00" font_color="#000055" label_side="top" x="804" y="135.5" width="37.7143" height="37.7143" name="length of service wks"/>
+				<connector uid="2" color="#AA0000" font_color="#AA0000" angle="13.4587">
+					<from>service_users</from>
+					<to>finish_service</to>
+				</connector>
+				<connector uid="3" color="#AA0000" font_color="#AA0000" angle="277.125">
+					<from>length_of_service_wks</from>
+					<to>finish_service</to>
+				</connector>
+				<aux color="#000055" background="#8CBD00" font_color="#000055" label_side="top" x="170" y="136" width="36.7143" height="36.7143" name="referrals per week"/>
+				<stock color="#000055" font_color="#000055" x="336.5" y="216" width="101" height="70" name="waiting to start"/>
+				<flow color="#000055" font_color="#000055" label_angle="46.4303" x="261.75" y="249" name="referrals">
+					<pts>
+						<pt x="187" y="249"/>
+						<pt x="336.5" y="249"/>
+					</pts>
+				</flow>
+				<connector uid="5" color="#AA0000" font_color="#AA0000" angle="295.017">
+					<from>referrals_per_week</from>
+					<to>referrals</to>
+				</connector>
+				<aux color="#000055" font_color="#000055" label_side="left" label_angle="135" x="544.25" y="126.5" name="spare places"/>
+				<aux color="#000055" background="#8CBD00" font_color="#000055" label_angle="73.3678" x="622.5" y="32" width="33" height="33" name="total places"/>
+				<connector uid="6" color="#A3A8AC" font_color="#A3A8AC" angle="193.241">
+					<from>total_places</from>
+					<to>spare_places</to>
+				</connector>
+				<connector uid="7" color="#AA0000" font_color="#AA0000" angle="134.249">
+					<from>service_users</from>
+					<to>spare_places</to>
+				</connector>
+				<flow color="#000055" font_color="#000055" x="494.5" y="247" name="start service">
+					<pts>
+						<pt x="437.5" y="247"/>
+						<pt x="563.5" y="247"/>
+					</pts>
+				</flow>
+				<connector uid="8" color="#AA0000" font_color="#AA0000" angle="20.9066">
+					<from>waiting_to_start</from>
+					<to>start_service</to>
+				</connector>
+				<aux color="#000055" font_color="#000055" label_side="left" label_angle="135" x="435.714" y="333.143" name="waiting time days"/>
+				<connector uid="11" color="#AA0000" font_color="#AA0000" angle="308.822">
+					<from>waiting_to_start</from>
+					<to>waiting_time_days</to>
+				</connector>
+				<connector uid="12" color="#AA0000" font_color="#AA0000" angle="209.441">
+					<from>start_service</from>
+					<to>waiting_time_days</to>
+				</connector>
+				<connector uid="14" color="#AA0000" font_color="#AA0000" angle="226.736">
+					<from>spare_places</from>
+					<to>start_service</to>
+				</connector>
+				<stock color="#000055" font_color="#000055" x="835.643" y="316.643" width="77" height="53" name="cumulative finishers"/>
+				<flow color="#000055" font_color="#000055" x="759.393" y="344.143" name="finishers">
+					<pts>
+						<pt x="683.143" y="344.143"/>
+						<pt x="835.643" y="344.143"/>
+					</pts>
+				</flow>
+				<connector uid="15" color="#AA0000" font_color="#AA0000" angle="237.709">
+					<from>finish_service</from>
+					<to>finishers</to>
+				</connector>
+				<aux color="#000055" font_color="#000055" x="1000.14" y="339.143" name="service users\ncompleted per quarter"/>
+				<connector uid="16" color="#AA0000" font_color="#AA0000" angle="25.4976">
+					<from>cumulative_finishers</from>
+					<to>service_users_completed_per_quarter</to>
+				</connector>
+				<aux color="#686F73" font_color="#686F73" x="494.5" y="366" name="days per week"/>
+				<connector uid="18" color="#A3A8AC" font_color="#A3A8AC" angle="187.595">
+					<from>days_per_week</from>
+					<to>referrals</to>
+				</connector>
+				<connector uid="19" color="#A3A8AC" font_color="#A3A8AC" angle="6.00901">
+					<from>days_per_week</from>
+					<to>finish_service</to>
+				</connector>
+				<aux color="#686F73" font_color="#686F73" label_side="top" x="1014.57" y="279.143" name="days per qtr"/>
+				<connector uid="20" color="#A3A8AC" font_color="#A3A8AC" angle="284.3">
+					<from>days_per_qtr</from>
+					<to>service_users_completed_per_quarter</to>
+				</connector>
+				<aux color="#000055" font_color="#000055" label_side="top" x="746.75" y="126.5" name="finish per day"/>
+				<connector uid="21" color="#AA0000" font_color="#AA0000" angle="77.2344">
+					<from>finish_service</from>
+					<to>finish_per_day</to>
+				</connector>
+				<aux color="#686F73" font_color="#686F73" label_side="right" label_angle="45" x="737" y="49" name="day"/>
+				<connector uid="22" color="#A3A8AC" font_color="#A3A8AC" angle="305.538">
+					<from>day</from>
+					<to>finish_per_day</to>
+				</connector>
+				<connector uid="23" color="#AA0000" font_color="#AA0000" angle="159.864">
+					<from>finish_per_day</from>
+					<to>spare_places</to>
+				</connector>
+				<connector uid="24" color="#A3A8AC" font_color="#A3A8AC" angle="195.945">
+					<from>day</from>
+					<to>start_service</to>
+				</connector>
+				<aux color="#686F73" font_color="#686F73" label_side="top" x="494.5" y="57" name="people per place"/>
+				<connector uid="25" color="#AA0000" font_color="#AA0000" angle="319.95">
+					<from>people_per_place</from>
+					<to>spare_places</to>
+				</connector>
+				<aux color="#000055" font_color="#000055" label_side="left" label_angle="225" x="664.5" y="144.5" name="unused places"/>
+				<connector uid="26" color="#AA0000" font_color="#AA0000" angle="254.055">
+					<from>total_places</from>
+					<to>unused_places</to>
+				</connector>
+				<connector uid="27" color="#AA0000" font_color="#AA0000" angle="33.4387">
+					<from>service_users</from>
+					<to>unused_places</to>
+				</connector>
+				<aux color="#000055" font_color="#000055" label_side="left" x="441.429" y="141.143" name="waiting"/>
+				<connector uid="28" color="#AA0000" font_color="#AA0000" angle="33.8427">
+					<from>waiting_to_start</from>
+					<to>waiting</to>
+				</connector>
+				<connector uid="29" color="#AA0000" font_color="#AA0000" angle="102.063">
+					<from>start_service</from>
+					<to>waiting</to>
+				</connector>
+			</view>
+			<view background="white" page_width="1066" page_height="600" zoom="125" home_view="true" type="interface">
+				<style>
+					<isee:stacked_container item_spacing="0" corner_radius="4" selected_item_color="black" selected_item_background="white" item_background="#DDDDDD" transparent_bg="false"/>
+				</style>
+				<knob font_weight="bold" font_size="14pt" x="843" y="398" width="100" height="88" increment="1" min="0" max="40" title="Referrals per day" isee:navigate_to="false" show_name="true">
+					<entity name="referrals_per_week"/>
+					<reset_to after="never">0</reset_to>
+				</knob>
+				<slider font_weight="bold" font_size="14pt" label_side="bottom" x="587.5" y="333.5" width="374" height="39" increment="1" min="1" max="28" title="length of stay (days)" isee:navigate_to="false" show_name="true">
+					<entity name="length_of_service_wks"/>
+					<reset_to after="never">0</reset_to>
+				</slider>
+				<button corner_radius="6" label="week" isee:tooltip="" x="68" y="526">
+					<actions>
+						<action time="7">advance_time</action>
+					</actions>
+				</button>
+				<button corner_radius="6" label="month" isee:tooltip="" x="133" y="526">
+					<actions>
+						<action time="31">advance_time</action>
+					</actions>
+				</button>
+				<button corner_radius="6" label="quarter" isee:tooltip="" x="198" y="526">
+					<actions>
+						<action time="92">advance_time</action>
+					</actions>
+				</button>
+				<button corner_radius="6" label="year" isee:tooltip="" x="264" y="526">
+					<actions>
+						<action time="366">advance_time</action>
+					</actions>
+				</button>
+				<button corner_radius="6" label="to end" isee:tooltip="" x="330" y="526">
+					<actions>
+						<action>run_to_end</action>
+					</actions>
+				</button>
+				<button background="#55FF7F" font_style="italic" corner_radius="6" label="live" isee:tooltip="" x="398" y="526">
+					<actions>
+						<action>start_stella_live</action>
+					</actions>
+				</button>
+				<isee:time_slider interactive="true" appearance="progress" x="43.5" y="545.5" width="384" height="39"/>
+				<isee:sim_speed_slider font_size="12pt" min_duration="0" max_duration="20" include_labels="true" x="749.5" y="506.5" width="193" height="39"/>
+				<button corner_radius="6" label="run" isee:tooltip="" x="560" y="526">
+					<actions>
+						<action>start</action>
+					</actions>
+				</button>
+				<stacked_container x="41" y="294" width="432" height="206" visible_index="1">
+					<graph font_weight="bold" font_size="14pt" axis_label_font_size="11pt" width="432" height="206" type="time_series" show_grid="false" isee:tick_type="none" include_units_in_legend="false" plot_numbers="false" isee:label_pie_slices="false" isee:show_pie_borders="true" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="5" num_y_labels="3" title="Total Beds" isee:fill_intensity="0.1" isee:allow_zero_axis="true" left_axis_multi_scale="false" left_axis_auto_scale="true" left_include_units="true" right_axis_multi_scale="false" right_axis_auto_scale="true" right_include_units="true">
+						<plot isee:immediately_update_on_user_input="true" color="blue" isee:keep_zero_visible="true" pen_width="2" index="0" show_y_axis="true">
+							<entity name="service_users"/>
+							<scale min="0" max="200"/>
+						</plot>
+					</graph>
+					<graph width="432" height="206" comparative="true" type="time_series" show_grid="false" isee:tick_type="none" include_units_in_legend="false" plot_numbers="false" isee:label_pie_slices="false" isee:show_pie_borders="true" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="5" num_y_labels="3" isee:fill_intensity="0.1" isee:allow_zero_axis="true" left_axis_multi_scale="false" left_axis_auto_scale="true" left_include_units="true" right_axis_multi_scale="false" right_axis_auto_scale="true" right_include_units="true">
+						<plot color="blue" isee:keep_zero_visible="false" pen_width="1" index="0" show_y_axis="true">
+							<entity name="total_places"/>
+							<scale min="0" max="200"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<button corner_radius="6" label="reset" isee:tooltip="" x="88" y="486">
+					<actions>
+						<action isee:entity="total_places">restore_entity</action>
+						<action>unknown</action>
+					</actions>
+				</button>
+				<button corner_radius="6" label="clear" isee:tooltip="" x="515" y="483">
+					<actions>
+						<action>restore_all_outputs</action>
+						<action>stop_stella_live</action>
+					</actions>
+				</button>
+				<stacked_container x="509" y="32" width="463" height="272">
+					<graph font_weight="bold" font_size="14pt" axis_label_font_size="11pt" width="463" height="272" type="time_series" show_grid="false" isee:tick_type="none" include_units_in_legend="false" plot_numbers="false" isee:label_pie_slices="false" isee:show_pie_borders="true" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="6" num_y_labels="3" title="Flows" isee:fill_intensity="0.1" isee:allow_zero_axis="true" left_axis_multi_scale="false" left_axis_auto_scale="true" left_include_units="true" right_axis_multi_scale="false" right_axis_auto_scale="true" right_include_units="true">
+						<plot color="blue" isee:keep_zero_visible="false" pen_width="2" index="0" show_y_axis="true">
+							<entity name="referrals"/>
+						</plot>
+						<plot color="red" isee:keep_zero_visible="false" pen_width="2" index="1" show_y_axis="true">
+							<entity name="start_service"/>
+						</plot>
+						<plot color="#04AB64" pen_style="dotted" isee:keep_zero_visible="true" pen_width="2" index="2" show_y_axis="true">
+							<entity name="finish_service"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<stacked_container x="40" y="27" width="434" height="247" visible_index="1">
+					<graph font_weight="bold" font_size="14pt" axis_label_font_size="11pt" width="434" height="247" type="time_series" show_grid="false" isee:tick_type="none" include_units_in_legend="false" plot_numbers="false" isee:label_pie_slices="false" isee:show_pie_borders="true" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="6" num_y_labels="3" title="Stocks" isee:fill_intensity="0.1" isee:allow_zero_axis="true" left_axis_title="inpatients" left_axis_multi_scale="false" left_axis_auto_scale="true" left_include_units="true" right_axis_title="waiting to admit" right_axis_multi_scale="false" right_axis_auto_scale="true" right_include_units="true">
+						<plot isee:immediately_update_on_user_input="true" color="red" isee:keep_zero_visible="false" pen_width="2" index="0" show_y_axis="true">
+							<entity name="service_users"/>
+							<scale min="0"/>
+						</plot>
+						<plot isee:immediately_update_on_user_input="true" color="blue" isee:keep_zero_visible="true" pen_width="2" index="0" right_axis="true" show_y_axis="true">
+							<entity name="waiting_to_start"/>
+							<scale min="0"/>
+						</plot>
+						<plot color="red" pen_style="dotted" isee:keep_zero_visible="false" pen_width="2" index="1" show_y_axis="true">
+							<entity name="total_places"/>
+						</plot>
+						<plot color="#008F44" pen_style="dashed" isee:keep_zero_visible="false" pen_width="2" index="2" show_y_axis="true">
+							<entity name="spare_places"/>
+						</plot>
+					</graph>
+					<graph font_weight="bold" font_size="14pt" axis_label_font_size="11pt" width="434" height="247" comparative="true" type="time_series" show_grid="true" isee:tick_type="none" include_units_in_legend="false" plot_numbers="false" isee:label_pie_slices="false" isee:show_pie_borders="true" num_x_grid_lines="2" num_y_grid_lines="5" num_x_labels="5" num_y_labels="5" isee:fill_intensity="0.1" isee:allow_zero_axis="true" left_axis_multi_scale="false" left_axis_auto_scale="true" left_include_units="true" right_axis_multi_scale="false" right_axis_auto_scale="true" right_include_units="true">
+						<plot color="blue" isee:keep_zero_visible="true" pen_width="1" index="0" show_y_axis="true">
+							<entity name="waiting_time_days"/>
+							<scale min="0" max="36"/>
+						</plot>
+					</graph>
+					<graph font_weight="bold" font_size="14pt" axis_title_font_size="14pt" axis_label_font_size="11pt" width="434" height="247" type="time_series" show_grid="false" isee:tick_type="none" include_units_in_legend="false" plot_numbers="false" isee:label_pie_slices="false" isee:show_pie_borders="true" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="5" num_y_labels="3" isee:fill_intensity="0.1" isee:allow_zero_axis="true" left_axis_multi_scale="false" left_axis_auto_scale="true" left_include_units="true" right_axis_multi_scale="false" right_axis_auto_scale="true" right_include_units="true">
+						<plot color="blue" isee:keep_zero_visible="true" pen_width="2" index="0" show_y_axis="true">
+							<entity name="waiting_time_days"/>
+							<scale min="0" max="36"/>
+						</plot>
+					</graph>
+				</stacked_container>
+			</view>
+			<isee:templates>
+				<view background="white" page_width="1066" page_height="600" type="template">
+					<style>
+						<isee:stacked_container item_spacing="0" corner_radius="4" selected_item_color="black" selected_item_background="white" item_background="#DDDDDD" transparent_bg="false"/>
+					</style>
+				</view>
+			</isee:templates>
+			<isee:stories/>
+		</views>
+	</model>
+</xmile>
+
