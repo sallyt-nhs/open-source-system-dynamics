@@ -54,6 +54,7 @@ rsconnect/
 # dev files
 not-to-git/
 Shiny-ASDM/app-dev.R
+guide.qmd
 
 ### Stella Architect data files ###
 *.isdb

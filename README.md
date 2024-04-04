@@ -1,13 +1,3 @@
----
-title: "Open Source System Dynamics"
-author: "Sally Thompson"
-format: html
-editor: visual
-
-execute: 
-  eval: true
----
-
 A 'How to' guide to create a system dynamics model interface using open source software.
 
 Takes an already-developed model built using Stella Architect (but the method is also applicable to models built in other software that follows the XMILE convention), and interacts with it in `R`, using the `reticulate` package to harness the power of the `ASDM` package developed for Python by Wang Zhao.
@@ -18,20 +8,15 @@ The `ASDM` package also has the ability to build from scratch but this guide doe
 
 The `reticulate` package allows you to run Python code in R. Python is more explicit than R about environments, and this can be tricky to navigate for a someone not familiar with Python. Therefore this guide will start with a light touch, using the default environment created when you install `reticulate`. It will then give details about how to set up a dedicated environment for each project, which will be necessary if you plan to build and deploy a `Shiny` app.
 
-This guide takes a simple capacity-constrained Stella model, then uses the functionality of the ASDM package to load it into R, adjust parameters and run some simulations. These simulations are the equivalent of running the model in 'Stella Live' mode.
-
-![](images/clipboard-1964936420.png)
-
-The three inputs that the user will be able to adjust are coloured green: 'referrals per week' is a graphical, whilst 'total places' and 'length of service wks' are single values. If you have access to Stella, run this model so you can compare results.
+This guide takes a simple capacity-constrained Stella model, then uses the functionality of the ASDM package to load it into R, adjust parameters and run some simulations. These simulations are the equivalent of running the model in 'Stella Live' mode.![model structure used in the example](images/model-structure.png)The three inputs that the user will be able to adjust are coloured green: 'referrals per week' is a discrete graphical function (currently all values are 20), whilst 'total places' and 'length of service wks' are single values. If you have access to Stella, run this model so you can compare results.
 
 ### Initial Setup
 
-All code is in `R` and can be worked from R Studio IDE.
+All code is in `R` and can be worked from R Studio IDE, which avoids having to run commands in the terminal (which Python documentation tends to rely on).
 
 Start by loading R libraries, and installing `reticulate`:
 
 ```{r libraries}
-
 library(dplyr)
 library(janitor)
 library(ggplot2)
@@ -46,7 +31,6 @@ At this stage just be aware that this will have created a virtual environment ca
 Next is to check which version of Python you have installed:
 
 ```{r python-version}
-
 library(reticulate)
 
 py_config()
@@ -55,7 +39,6 @@ py_config()
 If you don’t have any versions of Python on your computer, you can install it using `install_python()`. If you need a specific version of Python insert it in the brackets, e.g.: `install_python("3.9.12")`
 
 ```{r install-python}
-#| eval: false
 
 install_python()
 # install_python("3.9.12")
@@ -68,15 +51,12 @@ install_python()
 Start by loading the `ASDM` package. This uses a `reticulate` function to source a Python script.
 
 ```{r source-asdm}
-
 source_python("asdm/asdm.py")
 ```
 
 This might generate errors that some (Python) packages are missing. In that case run the following code, replacing 'NAME_1' etc with the package(s) listed in the error message, then re-run the `source_python()` line.
 
 ```{r py-install}
-#| eval: false
-
 # install python packages
 py_install(c("NAME_1", "NAME_2", "NAME_3"))
 
@@ -85,10 +65,13 @@ source_python("asdm/asdm.py")
 
 You should now see a number of objects in your global (R) environment.
 
+#### Stella File
+
+*Try to avoid special characters in the names of objects in the Stella model, as this is likely to create an error once it imports into Python and R which could be difficult to track down.*
+
 Next load in the Stella .stmx file, and assign it a name:
 
 ```{r load-model}
-
 pathway_model <- sdmodel(from_xmile = "capacity constrained service pathway.stmx")
 ```
 
@@ -97,7 +80,6 @@ pathway_model <- sdmodel(from_xmile = "capacity constrained service pathway.stmx
 Run the model with the pre-populated data. `simulate()` is a python function from the ASDM package, being applied to the object `pathway_model`.
 
 ```{r simulate}
-
 pathway_model$simulate()
 pathway_model$summary()
 ```
@@ -107,7 +89,6 @@ Send the results to a dataframe:
 library(janitor)
 
 ```{r results-run-1}
-
 run_1 <- pathway_model$export_simulation_result(format='df',
                                             dt = TRUE, 
                                             to_csv = FALSE) |> 
@@ -125,10 +106,9 @@ In this example we will increase the total number of places from 130 to 150, and
 Run the simulation, then save the results in a new dataframe.
 
 ```{r adjust-params}
-
 pathway_model$clear_last_run()
 
-pathway_model$replace_element_equation('total_places', 150)
+pathway_model$replace_element_equation('total_places', 140)
 pathway_model$replace_element_equation('length_of_service_wks', 6)
 pathway_model$simulate()
 
@@ -144,31 +124,28 @@ run_2 <- pathway_model$export_simulation_result(format='df',
 Plot the results of each run to see that the model has updated. In this example we will see how the number of people waiting to start the service has changed.
 
 ```{r compare}
-
-
-
 run_1 |> 
-  ggplot(aes(x = time, y = waiting_to_start)) +
+  ggplot(aes(x = time, y = waiting)) +
   geom_line(colour = "#000055") +
   geom_line(data = run_2, colour = "#aa0000") +
-  theme_minimal()
-
+  theme_minimal() 
 
 ```
+
+![](images/clipboard-748625042.png)
+
+The second run (red in the chart) shows a reduced number of people waiting to start the service, which is to be expected after increasing capacity and reducing length of service.
 
 ### Third run - adjust graphical
 
 The parameter 'referrals per week' is a graphical input, and so the function to alter this requires new y-values as a minimum (it is possible to supply new x-values also. What does `new_xscale` do?).
 
-Note that the default behaviour is to interpolate between each point. Is it possible to have discrete values?
-
 ```{r adjust-graphical}
-
 pathway_model$clear_last_run()
 
 pathway_model$overwrite_graph_function_points(
   name = "referrals_per_week",
-  new_ypts = c(15, 35, 40, 30)
+  new_ypts = c(15, 20, 30, 20, 20)
 )
 pathway_model$simulate()
 
@@ -184,14 +161,17 @@ run_3 <- pathway_model$export_simulation_result(format='df',
 Comparing the number of people waiting over the last two runs.
 
 ```{r}
-
 run_2 |> 
-  ggplot(aes(x = time, y = waiting_to_start)) +
+  ggplot(aes(x = time, y = waiting)) +
   geom_line(colour = "#000055") +
   geom_line(data = run_3, colour = "#aa0000") +
   theme_minimal()
 
 ```
+
+![](images/clipboard-4206392746.png)
+
+The chart shows the reduction in referrals in the first quarter led to the waiting list becoming negligible in size. In the third quarter referrals were higher than previous runs which leads to an increase in the number of people waiting. In the last quarter the referral rate is steady at 20 per week, as per the first two runs, and the size of the waiting list drops again.
 
 That concludes the very brief introduction to using ASDM to run Stella models in 'light touch' mode. In practice, you are more likely to develop this as a project, which may then be published. In this case more care is needed around setting up the environment.
 
@@ -206,8 +186,6 @@ This method assumes you have already created a project within RStudio.
 The first step is to create a new virtual environment within your Rproject folder. Once you have run the code below, you should notice a new folder has been created. If you need to install any Python packages for this project, this is where they will be stored.
 
 ```{r}
-#| eval: false
-
 virtualenv_create(envname = "./.venv")
 ```
 
@@ -217,7 +195,8 @@ To create this, select File -\> New File -\> Text File from the Menu.
 
 Add the following code:
 
-``` {RETICULATE_PYTHON=".venv/Scripts/python.exe"}
+```{r}
+RETICULATE_PYTHON=.venv/Scripts/python.exe 
 ```
 
 then 'save as' and give the file the name `.Renviron` (note the dot preceding the R). This is now specifically pointing Reticulate to the relevant version of Python to use, and will apply each time you open the R project folder.
@@ -232,6 +211,6 @@ Adding Python will add to the complexity of a project being developed primarily 
 
 In this repo is a script that runs a simple Shiny app, with sliders to adjust the number of places and the length of service. Run it in RStudio to start to see how you might build capability into an open source interface.
 
-<https://support.posit.co/hc/en-us/articles/360022909454-Best-Practices-for-Using-Python-with-RStudio-Connect>
+## Further Resources
 
-<https://solutions.posit.co/write-code/reticulate/>
+The trickiest part of this process is most likely to be getting Python and the environment set up to work with Reticulate. The [Reticulate documentation from Posit](https://rstudio.github.io/reticulate/index.html) is a useful resource, as is its guidance about [using reticulate in projects](https://solutions.posit.co/write-code/reticulate/). The method of setting up the virtual environment was adapted from their documentation about[publishing to Posit Connect](https://support.posit.co/hc/en-us/articles/360022909454-Best-Practices-for-Using-Python-with-RStudio-Connect).

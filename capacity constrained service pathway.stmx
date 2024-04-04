@@ -76,10 +76,10 @@
 				<eqn>TIME</eqn>
 				<format precision="1"/>
 				<range min="0" max="40"/>
-				<gf>
-					<xscale min="1" max="274"/>
+				<gf type="extrapolate">
+					<xscale min="1" max="365"/>
 					<yscale min="0" max="100"/>
-					<ypts>20,30,40,30</ypts>
+					<ypts>20,20,20,20,20</ypts>
 				</gf>
 				<units>People/week</units>
 			</aux>
@@ -462,7 +462,7 @@
 						</plot>
 					</graph>
 				</stacked_container>
-				<stacked_container x="40" y="27" width="434" height="247" visible_index="1">
+				<stacked_container x="40" y="27" width="434" height="247">
 					<graph font_weight="bold" font_size="14pt" axis_label_font_size="11pt" width="434" height="247" type="time_series" show_grid="false" isee:tick_type="none" include_units_in_legend="false" plot_numbers="false" isee:label_pie_slices="false" isee:show_pie_borders="true" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="6" num_y_labels="3" title="Stocks" isee:fill_intensity="0.1" isee:allow_zero_axis="true" left_axis_title="inpatients" left_axis_multi_scale="false" left_axis_auto_scale="true" left_include_units="true" right_axis_title="waiting to admit" right_axis_multi_scale="false" right_axis_auto_scale="true" right_include_units="true">
 						<plot isee:immediately_update_on_user_input="true" color="red" isee:keep_zero_visible="false" pen_width="2" index="0" show_y_axis="true">
 							<entity name="service_users"/>
@@ -493,6 +493,27 @@
 					</graph>
 				</stacked_container>
 			</view>
+			<view background="white" page_width="1066" page_height="600" zoom="125" type="interface">
+				<style/>
+				<stacked_container x="213.6" y="148.8">
+					<graph width="350" height="250" comparative="true" type="time_series" show_grid="false" isee:tick_type="none" include_units_in_legend="false" plot_numbers="false" isee:label_pie_slices="false" isee:show_pie_borders="true" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="5" num_y_labels="3" isee:fill_intensity="0.1" isee:allow_zero_axis="true" left_axis_multi_scale="false" left_axis_auto_scale="true" left_include_units="true" right_axis_multi_scale="false" right_axis_auto_scale="true" right_include_units="true">
+						<plot color="blue" isee:keep_zero_visible="true" pen_width="1" index="0" show_y_axis="true">
+							<entity name="waiting"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<graphical_input x="427.6" y="39.6" width="608" height="426.4" isee:navigate_to="false" show_name="true" isee:fill_intensity="0" isee:series_color="black" isee:input_precision="5" isee:x_axis_title="" isee:y_axis_title="">
+					<entity name="referrals_per_week"/>
+					<reset_to after="never"/>
+				</graphical_input>
+				<stacked_container x="204.8" y="431.2">
+					<graph width="350" height="250" type="time_series" show_grid="false" isee:tick_type="none" include_units_in_legend="false" plot_numbers="false" isee:label_pie_slices="false" isee:show_pie_borders="true" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="5" num_y_labels="3" isee:fill_intensity="0.1" isee:allow_zero_axis="true" left_axis_multi_scale="false" left_axis_auto_scale="true" left_include_units="true" right_axis_multi_scale="false" right_axis_auto_scale="true" right_include_units="true">
+						<plot color="blue" isee:keep_zero_visible="true" pen_width="1" index="0" show_y_axis="true">
+							<entity name="referrals_per_week"/>
+						</plot>
+					</graph>
+				</stacked_container>
+			</view>
 			<isee:templates>
 				<view background="white" page_width="1066" page_height="600" type="template">
 					<style>
@@ -503,5 +524,16 @@
 			<isee:stories/>
 		</views>
 	</model>
+	<isee:controls>
+		<isee:control priority="interactive" name="length_of_service_wks" value="6"/>
+		<isee:control priority="interactive" name="referrals_per_week" type="graphical">
+			<gf type="extrapolate">
+				<yscale min="0" max="100"/>
+				<xpts>1,92,183,274,365</xpts>
+				<ypts>15,20,30,20,20</ypts>
+			</gf>
+		</isee:control>
+		<isee:control priority="interactive" name="total_places" value="140.289063335036"/>
+	</isee:controls>
 </xmile>
 
