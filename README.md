@@ -132,7 +132,7 @@ run_1 |>
 
 ```
 
-![](images/clipboard-748625042.png)
+![](images/runs-1-2.png)
 
 The second run (red in the chart) shows a reduced number of people waiting to start the service, which is to be expected after increasing capacity and reducing length of service.
 
@@ -169,7 +169,7 @@ run_2 |>
 
 ```
 
-![](images/clipboard-4206392746.png)
+![](images/runs-2-3.png)
 
 The chart shows the reduction in referrals in the first quarter led to the waiting list becoming negligible in size. In the third quarter referrals were higher than previous runs which leads to an increase in the number of people waiting. In the last quarter the referral rate is steady at 20 per week, as per the first two runs, and the size of the waiting list drops again.
 
