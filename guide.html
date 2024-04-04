@@ -3125,7 +3125,7 @@ vertical-align: -.125em;
 
 
 <p>A ‘How to’ guide to create a system dynamics model interface using open source software.</p>
-<p>Takes an already-developed model built using Stella Architect (but the method is also applicable to models built in other software that follows the XMILE convention), and interacts with it in <code>R</code>, using the <code>reticulate</code> package to harness the power of the <code>ASDM</code> package developed for Python by Wang Zhao.</p>
+<p>Takes an already-developed model built using Stella Architect (but the method is also applicable to models built in other software that follows the XMILE convention), and interacts with it in <code>R</code>, using the <code>reticulate</code> package to harness the power of the <code>ASDM</code> package developed for Python by <a href="https://github.com/wzh1895">Wang Zhao</a>.</p>
 <p>The <code>ASDM</code> package also has the ability to build from scratch but this guide does not cover that.</p>
 <section id="overview" class="level2">
 <h2 class="anchored" data-anchor-id="overview">Overview</h2>
@@ -3147,10 +3147,10 @@ vertical-align: -.125em;
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">py_config</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>If you don’t have any versions of Python on your computer, you can install it using <code>install_python()</code>. If you need a specific version of Python insert it in the brackets, e.g.: <code>install_python(&quot;3.9.12&quot;)</code></p>
+<p>If you don’t have any versions of Python on your computer, you can install it using <code>install_python()</code>. If you need a specific version of Python insert it in the brackets, e.g.: <code>install_python(&quot;3.11&quot;)</code></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install_python</span>()</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># install_python(&quot;3.9.12&quot;)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># install_python(&quot;3.11&quot;)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
@@ -3158,19 +3158,18 @@ vertical-align: -.125em;
 <h2 class="anchored" data-anchor-id="light-touch-approach">Light Touch Approach</h2>
 <section id="load-packages-and-model" class="level3">
 <h3 class="anchored" data-anchor-id="load-packages-and-model">Load Packages and Model</h3>
-<p>Start by loading the <code>ASDM</code> package. This uses a <code>reticulate</code> function to source a Python script.</p>
+<p><del>Start by loading the <code>ASDM</code> package. This uses a <code>reticulate</code> function to source a Python script.</del></p>
+<p>Python packages can be installed using the reticulate function <code>py_install()</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source_python</span>(<span class="st">&quot;asdm/asdm.py&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">py_install</span>(<span class="st">&quot;asdm&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>This might generate errors that some (Python) packages are missing. In that case run the following code, replacing ‘NAME_1’ etc with the package(s) listed in the error message, then re-run the <code>source_python()</code> line.</p>
+<p>This might generate errors that some (Python) packages are missing. In that case run the following code, replacing ‘NAME_1’ etc with the package(s) listed in the error message. <del>then re-run the <code>source_python()</code> line.</del></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install python packages</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">py_install</span>(<span class="fu">c</span>(<span class="st">&quot;NAME_1&quot;</span>, <span class="st">&quot;NAME_2&quot;</span>, <span class="st">&quot;NAME_3&quot;</span>))</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source_python</span>(<span class="st">&quot;asdm/asdm.py&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">py_install</span>(<span class="fu">c</span>(<span class="st">&quot;NAME_1&quot;</span>, <span class="st">&quot;NAME_2&quot;</span>, <span class="st">&quot;NAME_3&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>You should now see a number of objects in your global (R) environment.</p>
-<p>Next load in the Stella .stmx file, and assign it a name:</p>
+<p><del>You should now see a number of objects in your global (R) environment.</del> Can you?</p>
+<p>Next load in the Stella <code>.stmx</code> file, and assign it a name:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>pathway_model <span class="ot">&lt;-</span> <span class="fu">sdmodel</span>(<span class="at">from_xmile=</span><span class="st">&#39;capacity constrained service pathway.stmx&#39;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -3196,7 +3195,7 @@ vertical-align: -.125em;
 <h3 class="anchored" data-anchor-id="second-run---adjust-single-value-parameters">Second run - adjust single value parameters</h3>
 <p>Before adjusting any parameters it is necessary to reset, by running <code>clear_last_run()</code>.</p>
 <p>There are two inputs that each take a single value; these are adjusted using the <code>replace_element_equation()</code> function. The first argument is the parameter to be changed, the second is the new value.</p>
-<p>In this example we will increase the total number of places from 130 to 150, and reduce length of service (in weeks) to 6.</p>
+<p>In this example we will increase the total number of places from 130 to 140, and reduce length of service (in weeks) to 6.</p>
 <p>Run the simulation, then save the results in a new dataframe.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>pathway_model<span class="sc">$</span><span class="fu">clear_last_run</span>()</span>
@@ -3229,7 +3228,7 @@ vertical-align: -.125em;
 <section id="third-run---adjust-graphical" class="level3">
 <h3 class="anchored" data-anchor-id="third-run---adjust-graphical">Third run - adjust graphical</h3>
 <p>The parameter ‘referrals per week’ is a graphical input, and so the function to alter this requires new y-values as a minimum (it is possible to supply new x-values also. What does <code>new_xscale</code> do?).</p>
-<p>Note that the default behaviour is to interpolate between each point. Is it possible to have discrete values?</p>
+<p>Note that the default behaviour is to interpolate between each point. It is not yet possible to have discrete values (in development).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>pathway_model<span class="sc">$</span><span class="fu">clear_last_run</span>()</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -3274,7 +3273,9 @@ vertical-align: -.125em;
 <p>Next, you need to create (if it doesn’t already exist), or add to, the project’s <code>.Renviron</code> file to point to the version of Python that Reticulate will use.</p>
 <p>To create this, select File -&gt; New File -&gt; Text File from the Menu.</p>
 <p>Add the following code:</p>
-<pre data-reticulate_python=".venv/Scripts/python.exe"><code></code></pre>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>RETICULATE_PYTHON<span class="ot">=</span>.venv<span class="sc">/</span>Scripts<span class="sc">/</span>python.exe</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>then ‘save as’ and give the file the name <code>.Renviron</code> (note the dot preceding the R). This is now specifically pointing Reticulate to the relevant version of Python to use, and will apply each time you open the R project folder.</p>
 </section>
 <section id="loading-asdm" class="level3">
@@ -3285,11 +3286,11 @@ vertical-align: -.125em;
 <section id="making-it-interactive" class="level2">
 <h2 class="anchored" data-anchor-id="making-it-interactive">Making it interactive</h2>
 <p>Adding Python will add to the complexity of a project being developed primarily in R. Running individual lines of code to simulate and adjust parameters is useful for testing that the model is behaving as expected, but the real power of <code>ASDM</code> is being able to interact with a model in real time.</p>
-<p>In this repo is a script that runs a simple Shiny app, with sliders to adjust the number of places and the length of service. Run it in RStudio to start to see how you might build capability into an open source interface.</p>
+<p>In this repo is a script that runs a simple Shiny app, with sliders to adjust the number of places and the length of service. Run it in RStudio to start to see how you might build interactive capability into an open source interface.</p>
 </section>
 <section id="further-resources" class="level2">
 <h2 class="anchored" data-anchor-id="further-resources">Further Resources</h2>
-<p>The trickiest part of this process is most likely to be getting Python and the environment set up to work with Reticulate. The <a href="https://rstudio.github.io/reticulate/index.html">Reticulate documentation from Posit</a> is a useful resource, as is its guidance about <a href="https://solutions.posit.co/write-code/reticulate/">using reticulate in projects</a>. The method of setting up the virtual environment was adapted from their documentation about<a href="https://support.posit.co/hc/en-us/articles/360022909454-Best-Practices-for-Using-Python-with-RStudio-Connect">publishing to Posit Connect</a>.</p>
+<p>The trickiest part of this process is most likely to be getting Python and the environment set up to work with Reticulate. The <a href="https://rstudio.github.io/reticulate/index.html">Reticulate documentation from Posit</a> is a useful resource, as is its guidance about <a href="https://solutions.posit.co/write-code/reticulate/">using reticulate in projects</a>. The method of setting up the virtual environment was adapted from their documentation about <a href="https://support.posit.co/hc/en-us/articles/360022909454-Best-Practices-for-Using-Python-with-RStudio-Connect">publishing to Posit Connect</a>.</p>
 </section>
 
 </main>

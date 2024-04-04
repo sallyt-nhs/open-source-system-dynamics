@@ -1,6 +1,6 @@
 A 'How to' guide to create a system dynamics model interface using open source software.
 
-Takes an already-developed model built using Stella Architect (but the method is also applicable to models built in other software that follows the XMILE convention), and interacts with it in `R`, using the `reticulate` package to harness the power of the `ASDM` package developed for Python by Wang Zhao.
+Takes an already-developed model built using Stella Architect (but the method is also applicable to models built in other software that follows the XMILE convention), and interacts with it in `R`, using the `reticulate` package to harness the power of the `ASDM` package developed for Python by [Wang Zhao](https://github.com/wzh1895).
 
 The `ASDM` package also has the ability to build from scratch but this guide does not cover that.
 
@@ -36,40 +36,39 @@ library(reticulate)
 py_config()
 ```
 
-If you don’t have any versions of Python on your computer, you can install it using `install_python()`. If you need a specific version of Python insert it in the brackets, e.g.: `install_python("3.9.12")`
+If you don’t have any versions of Python on your computer, you can install it using `install_python()`. If you need a specific version of Python insert it in the brackets, e.g.: `install_python("3.11")`
 
 ```{r install-python}
-
 install_python()
-# install_python("3.9.12")
+# install_python("3.11")
 ```
 
 ## Light Touch Approach
 
 ### Load Packages and Model
 
-Start by loading the `ASDM` package. This uses a `reticulate` function to source a Python script.
+~~Start by loading the `ASDM` package. This uses a `reticulate` function to source a Python script.~~
 
-```{r source-asdm}
-source_python("asdm/asdm.py")
+Python packages can be installed using the reticulate function `py_install()`.
+
+```{r py-install-asdm}
+py_install("asdm")
 ```
 
-This might generate errors that some (Python) packages are missing. In that case run the following code, replacing 'NAME_1' etc with the package(s) listed in the error message, then re-run the `source_python()` line.
+This might generate errors that some (Python) packages are missing. In that case run the following code, replacing 'NAME_1' etc with the package(s) listed in the error message. ~~then re-run the `source_python()` line.~~
 
 ```{r py-install}
 # install python packages
 py_install(c("NAME_1", "NAME_2", "NAME_3"))
-
-source_python("asdm/asdm.py")
 ```
 
-You should now see a number of objects in your global (R) environment.
+~~You should now see a number of objects in your global (R) environment.~~ Can you?
 
 #### Stella File
 
 *Try to avoid special characters in the names of objects in the Stella model, as this is likely to create an error once it imports into Python and R which could be difficult to track down.*
 
-Next load in the Stella .stmx file, and assign it a name:
+Next load in the Stella `.stmx` file, and assign it a name:
 
 ```{r load-model}
 pathway_model <- sdmodel(from_xmile = "capacity constrained service pathway.stmx")
@@ -86,9 +85,8 @@ pathway_model$summary()
 
 Send the results to a dataframe:
 
-library(janitor)
-
 ```{r results-run-1}
+library(janitor)
 run_1 <- pathway_model$export_simulation_result(format='df',
                                             dt = TRUE, 
                                             to_csv = FALSE) |> 
@@ -101,7 +99,7 @@ Before adjusting any parameters it is necessary to reset, by running `clear_last
 
 There are two inputs that each take a single value; these are adjusted using the `replace_element_equation()` function. The first argument is the parameter to be changed, the second is the new value.
 
-In this example we will increase the total number of places from 130 to 150, and reduce length of service (in weeks) to 6.
+In this example we will increase the total number of places from 130 to 140, and reduce length of service (in weeks) to 6.
 
 Run the simulation, then save the results in a new dataframe.
 
@@ -139,6 +137,8 @@ The second run (red in the chart) shows a reduced number of people waiting to st
 ### Third run - adjust graphical
 
 The parameter 'referrals per week' is a graphical input, and so the function to alter this requires new y-values as a minimum (it is possible to supply new x-values also. What does `new_xscale` do?).
+
+Note that the default behaviour is to interpolate between each point. It is not yet possible to have discrete values (in development).
 
 ```{r adjust-graphical}
 pathway_model$clear_last_run()
@@ -203,14 +203,14 @@ then 'save as' and give the file the name `.Renviron` (note the dot preceding th
 
 ### Loading ASDM
 
-From this point on, the process is the same as above. The first time you run `source_python("asdm/asdm.py")` you may be prompted to install Python packages - this is because they don't yet exist in the new environment you just created. As before, running `py_install(c("NAME_1", "NAME_2", "NAME_3"))` will fix this.
+From this point on, the process is the same as above. Run `py_install("asdm")` to install ASDM in the new environment. As before, running `py_install(c("NAME_1", "NAME_2", "NAME_3"))` will install any missing packages that ASDM depends on.
 
 ## Making it interactive
 
 Adding Python will add to the complexity of a project being developed primarily in R. Running individual lines of code to simulate and adjust parameters is useful for testing that the model is behaving as expected, but the real power of `ASDM` is being able to interact with a model in real time.
 
-In this repo is a script that runs a simple Shiny app, with sliders to adjust the number of places and the length of service. Run it in RStudio to start to see how you might build capability into an open source interface.
+In this repo is a script that runs a simple Shiny app, with sliders to adjust the number of places and the length of service. Run it in RStudio to start to see how you might build interactive capability into an open source interface.
 
 ## Further Resources
 
-The trickiest part of this process is most likely to be getting Python and the environment set up to work with Reticulate. The [Reticulate documentation from Posit](https://rstudio.github.io/reticulate/index.html) is a useful resource, as is its guidance about [using reticulate in projects](https://solutions.posit.co/write-code/reticulate/). The method of setting up the virtual environment was adapted from their documentation about[publishing to Posit Connect](https://support.posit.co/hc/en-us/articles/360022909454-Best-Practices-for-Using-Python-with-RStudio-Connect).
+The trickiest part of this process is most likely to be getting Python and the environment set up to work with Reticulate. The [Reticulate documentation from Posit](https://rstudio.github.io/reticulate/index.html) is a useful resource, as is its guidance about [using reticulate in projects](https://solutions.posit.co/write-code/reticulate/). The method of setting up the virtual environment was adapted from their documentation about [publishing to Posit Connect](https://support.posit.co/hc/en-us/articles/360022909454-Best-Practices-for-Using-Python-with-RStudio-Connect).
