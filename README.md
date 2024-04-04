@@ -36,40 +36,40 @@ library(reticulate)
 py_config()
 ```
 
-If you don’t have any versions of Python on your computer, you can install it using `install_python()`. If you need a specific version of Python insert it in the brackets, e.g.: `install_python("3.9.12")`
+If you don’t have any versions of Python on your computer, you can install it using `install_python()`. If you need a specific version of Python insert it in the brackets, e.g.: `install_python("3.11")`
 
 ```{r install-python}
 
 install_python()
-# install_python("3.9.12")
+# install_python("3.11")
 ```
 
 ## Light Touch Approach
 
 ### Load Packages and Model
 
-Start by loading the `ASDM` package. This uses a `reticulate` function to source a Python script.
+~~Start by loading the `ASDM` package. This uses a `reticulate` function to source a Python script.~~
 
-```{r source-asdm}
-source_python("asdm/asdm.py")
+Python packages can be installed using the reticulate function `py_install()`.
+
+```{r py-install-asdm}
+py_install("asdm")
 ```
 
-This might generate errors that some (Python) packages are missing. In that case run the following code, replacing 'NAME_1' etc with the package(s) listed in the error message, then re-run the `source_python()` line.
+This might generate errors that some (Python) packages are missing. In that case run the following code, replacing 'NAME_1' etc with the package(s) listed in the error message. ~~then re-run the `source_python()` line.~~
 
 ```{r py-install}
 # install python packages
 py_install(c("NAME_1", "NAME_2", "NAME_3"))
-
-source_python("asdm/asdm.py")
 ```
 
-You should now see a number of objects in your global (R) environment.
+~~You should now see a number of objects in your global (R) environment.~~ Can you?
 
 #### Stella File
 
 *Try to avoid special characters in the names of objects in the Stella model, as this is likely to create an error once it imports into Python and R which could be difficult to track down.*
 
-Next load in the Stella .stmx file, and assign it a name:
+Next load in the Stella `.stmx` file, and assign it a name:
 
 ```{r load-model}
 pathway_model <- sdmodel(from_xmile = "capacity constrained service pathway.stmx")
@@ -86,9 +86,8 @@ pathway_model$summary()
 
 Send the results to a dataframe:
 
-library(janitor)
-
 ```{r results-run-1}
+library(janitor)
 run_1 <- pathway_model$export_simulation_result(format='df',
                                             dt = TRUE, 
                                             to_csv = FALSE) |> 
@@ -101,7 +100,7 @@ Before adjusting any parameters it is necessary to reset, by running `clear_last
 
 There are two inputs that each take a single value; these are adjusted using the `replace_element_equation()` function. The first argument is the parameter to be changed, the second is the new value.
 
-In this example we will increase the total number of places from 130 to 150, and reduce length of service (in weeks) to 6.
+In this example we will increase the total number of places from 130 to 140, and reduce length of service (in weeks) to 6.
 
 Run the simulation, then save the results in a new dataframe.
 
@@ -139,6 +138,8 @@ The second run (red in the chart) shows a reduced number of people waiting to st
 ### Third run - adjust graphical
 
 The parameter 'referrals per week' is a graphical input, and so the function to alter this requires new y-values as a minimum (it is possible to supply new x-values also. What does `new_xscale` do?).
+
+Note that the default behaviour is to interpolate between each point. It is not yet possible to have discrete values (in development).
 
 ```{r adjust-graphical}
 pathway_model$clear_last_run()
