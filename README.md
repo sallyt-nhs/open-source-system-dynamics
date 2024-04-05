@@ -181,6 +181,13 @@ Python is very particular/explicit about environments. Whilst there is a lot of 
 
 This method assumes you have already created a project within RStudio.
 
+Load `reticulate` as in the previous step.
+
+```{r}
+
+library(reticulate)
+```
+
 ### Creating and pointing to the environment
 
 The first step is to create a new virtual environment within your Rproject folder. Once you have run the code below, you should notice a new folder has been created. If you need to install any Python packages for this project, this is where they will be stored.
@@ -201,9 +208,24 @@ RETICULATE_PYTHON=.venv/Scripts/python.exe
 
 then 'save as' and give the file the name `.Renviron` (note the dot preceding the R). This is now specifically pointing Reticulate to the relevant version of Python to use, and will apply each time you open the R project folder.
 
+Quit the session and re-start R.
+
 ### Loading ASDM
 
-From this point on, the process is the same as above. Run `py_install("asdm")` to install ASDM in the new environment. As before, running `py_install(c("NAME_1", "NAME_2", "NAME_3"))` will install any missing packages that ASDM depends on.
+Install `asdm` by running `py_install("")`, then `import`:
+
+```{r}
+
+py_install("asdm")
+import("asdm")
+```
+
+Now load the Stella model and continue as before:
+
+```{r}
+
+pathway_model <- sdmodel(from_xmile='capacity constrained service pathway.stmx')
+```
 
 ## Making it interactive
 
