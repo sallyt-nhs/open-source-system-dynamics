@@ -47,12 +47,10 @@ install_python()
 
 ### Load Packages and Model
 
-~~Start by loading the `ASDM` package. This uses a `reticulate` function to source a Python script.~~
-
 Python packages can be installed using the reticulate function `py_install()`.
 
 ```{r py-install-asdm}
-py_install("asdm")
+py_install("ASDM")
 ```
 
 This might generate errors that some (Python) packages are missing. In that case run the following code, replacing 'NAME_1' etc with the package(s) listed in the error message. ~~then re-run the `source_python()` line.~~
@@ -64,6 +62,15 @@ py_install(c("NAME_1", "NAME_2", "NAME_3"))
 
 ~~You should now see a number of objects in your global (R) environment.~~ Can you?
 
+In order to use ASDM, you need to import the module. 
+
+We can do this with 
+
+```{r py import}
+asdm <- import("ASDM")
+```
+
+
 #### Stella File
 
 *Try to avoid special characters in the names of objects in the Stella model, as this is likely to create an error once it imports into Python and R which could be difficult to track down.*
@@ -71,7 +78,7 @@ py_install(c("NAME_1", "NAME_2", "NAME_3"))
 Next load in the Stella `.stmx` file, and assign it a name:
 
 ```{r load-model}
-pathway_model <- sdmodel(from_xmile = "capacity constrained service pathway.stmx")
+pathway_model <- asdm$asdm$sdmodel(from_xmile = "capacity constrained service pathway.stmx")
 ```
 
 ### First Run
@@ -122,6 +129,7 @@ run_2 <- pathway_model$export_simulation_result(format='df',
 Plot the results of each run to see that the model has updated. In this example we will see how the number of people waiting to start the service has changed.
 
 ```{r compare}
+library("ggplot2")
 run_1 |> 
   ggplot(aes(x = time, y = waiting)) +
   geom_line(colour = "#000055") +
@@ -212,19 +220,19 @@ Quit the session and re-start R.
 
 ### Loading ASDM
 
-Install `asdm` by running `py_install("")`, then `import`:
+Install `ASDM` by running `py_install("")`, then `import`:
 
 ```{r}
 
-py_install("asdm")
-import("asdm")
+py_install("ASDM")
+asdm <- import("ASDM")
 ```
 
 Now load the Stella model and continue as before:
 
 ```{r}
 
-pathway_model <- sdmodel(from_xmile='capacity constrained service pathway.stmx')
+pathway_model <- asdm$asdm$sdmodel(from_xmile='capacity constrained service pathway.stmx')
 ```
 
 ## Making it interactive
