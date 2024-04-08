@@ -62,14 +62,13 @@ py_install(c("NAME_1", "NAME_2", "NAME_3"))
 
 ~~You should now see a number of objects in your global (R) environment.~~ Can you?
 
-In order to use ASDM, you need to import the module. 
+In order to use ASDM, you need to import the module.
 
-We can do this with 
+We can do this with
 
 ```{r py import}
 asdm <- import("ASDM")
 ```
-
 
 #### Stella File
 
@@ -223,7 +222,6 @@ Quit the session and re-start R.
 Install `ASDM` by running `py_install("")`, then `import`:
 
 ```{r}
-
 py_install("ASDM")
 asdm <- import("ASDM")
 ```
@@ -231,7 +229,6 @@ asdm <- import("ASDM")
 Now load the Stella model and continue as before:
 
 ```{r}
-
 pathway_model <- asdm$asdm$sdmodel(from_xmile='capacity constrained service pathway.stmx')
 ```
 
