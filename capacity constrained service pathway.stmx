@@ -76,10 +76,10 @@
 				<eqn>TIME</eqn>
 				<format precision="1"/>
 				<range min="0" max="40"/>
-				<gf>
+				<gf type="discrete">
 					<xscale min="1" max="365"/>
 					<yscale min="0" max="100"/>
-					<ypts>20,20,30,20,20</ypts>
+					<ypts>20,20,20,20,20</ypts>
 				</gf>
 				<units>People/week</units>
 			</aux>
