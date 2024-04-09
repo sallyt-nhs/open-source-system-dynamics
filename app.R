@@ -12,12 +12,14 @@ library(shiny)
 
 ### set up ----
 
+use_virtualenv('./.venv', required=TRUE)
+
 # source ASDM python package
-source_python("asdm/asdm.py")
+asdm <- import("ASDM")
 
 
 # load stella model
-pathway_model <- pathway_model <- sdmodel(from_xmile = "capacity constrained service pathway.stmx")
+pathway_model <- asdm$asdm$sdmodel(from_xmile = "capacity constrained service pathway.stmx")
 
 
 # function to run a simulation and return results to a dataframe
@@ -103,7 +105,7 @@ server <- function(input, output) {
                 line = list(color ="#5881c1")) |> 
                   layout(
                     hovermode = "x",
-                    xaxis = list(title = ""),
+                    xaxis = list(title = "Days since simualtion start"),
                     yaxis = list(title = "Weekly referrals",
                                  rangemode = "tozero",
                                  hoverformat = ".0f")
