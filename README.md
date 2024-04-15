@@ -8,7 +8,7 @@ The `ASDM` package also has the ability to build from scratch but this guide doe
 
 The `reticulate` package allows you to run Python code in R. Python is more explicit than R about environments, and this can be tricky to navigate for a someone not familiar with Python. Therefore this guide will start with a light touch, using the default environment created when you install `reticulate`. It will then give details about how to set up a dedicated environment for each project, which will be necessary if you plan to build and deploy a `Shiny` app.
 
-This guide takes a simple capacity-constrained Stella model, then uses the functionality of the ASDM package to load it into R, adjust parameters and run some simulations. These simulations are the equivalent of running the model in 'Stella Live' mode.![model structure used in the example](images/model-structure.png)The three inputs that the user will be able to adjust are coloured green: 'referrals per week' is a discrete graphical function (currently all values are 20), whilst 'total places' and 'length of service wks' are single values. If you have access to Stella, run this model so you can compare results.
+This guide takes a simple capacity-constrained Stella model, then uses the functionality of the ASDM package to load it into R, adjust parameters and run some simulations. These simulations are the equivalent of running the model in 'Stella Live' mode.![model structure used in the example](images/model-structure.png)The three inputs that the user will be able to adjust are coloured green: 'referrals per week' is a continuous graphical function (currently all values are 20), whilst 'total places' and 'length of service wks' are single values. If you have access to Stella, run this model so you can compare results.
 
 ### Initial Setup
 
@@ -53,7 +53,7 @@ Python packages can be installed using the reticulate function `py_install()`.
 py_install("ASDM")
 ```
 
-This might generate errors that some (Python) packages are missing. In that case run the following code, replacing 'NAME_1' etc with the package(s) listed in the error message. ~~then re-run the `source_python()` line.~~
+This might generate errors that some (Python) packages are missing. In that case run the following code, replacing 'NAME_1' etc with the package(s) listed in the error message.
 
 ```{r py-install}
 # install python packages
