@@ -60,8 +60,6 @@ This might generate errors that some (Python) packages are missing. In that case
 py_install(c("NAME_1", "NAME_2", "NAME_3"))
 ```
 
-~~You should now see a number of objects in your global (R) environment.~~ Can you?
-
 In order to use ASDM, you need to import the module.
 
 We can do this with
