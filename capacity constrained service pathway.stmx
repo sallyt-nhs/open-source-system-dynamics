@@ -76,7 +76,7 @@
 				<eqn>TIME</eqn>
 				<format precision="1"/>
 				<range min="0" max="40"/>
-				<gf type="discrete">
+				<gf>
 					<xscale min="1" max="365"/>
 					<yscale min="0" max="100"/>
 					<ypts>20,20,20,20,20</ypts>
